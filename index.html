@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Image Classifier</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">Vehicle Classifier</h1>
+            <ul class="flex space-x-4">
+                <li><a href="#" class="hover:underline">Home</a></li>
+                <li><a href="#" class="hover:underline">About</a></li>
+                <li><a href="#" class="hover:underline">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="text-center py-12 bg-blue-500 text-white">
+        <h2 class="text-3xl font-bold">Upload a Vehicle Image</h2>
+        <p class="mt-4 text-lg">Our AI model will classify the type of vehicle.</p>
+    </section>
+
+    <!-- File Upload Section -->
+    <section class="container mx-auto py-12 text-center">
+        <input type="file" id="fileInput" accept="image/jpeg" class="block mx-auto my-4 p-2 border rounded-lg">
+        <button id="submitBtn" class="mt-4 bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700">
+            Submit
+        </button>
+        <p id="result" class="mt-4 text-lg font-semibold"></p>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white text-center py-4">
+        <p>&copy; 2025 Vehicle Classifier. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script type="module">
+        import { Client } from "@gradio/client";
+
+        document.getElementById("submitBtn").addEventListener("click", async () => {
+            const fileInput = document.getElementById("fileInput");
+            const resultText = document.getElementById("result");
+
+            if (!fileInput.files.length) {
+                resultText.textContent = "Please select a JPEG file.";
+                return;
+            }
+
+            const file = fileInput.files[0];
+
+            try {
+                // Convert the selected image file to a Blob
+                const imageBlob = new Blob([file], { type: file.type });
+
+                // Connect to the Gradio API
+                const client = await Client.connect("shoupjom01/vehicle");
+                
+                // Send the image for prediction
+                const result = await client.predict("/predict", { img: imageBlob });
+
+                // Display the result
+                resultText.textContent = "Prediction: " + JSON.stringify(result.data);
+            } catch (error) {
+                resultText.textContent = "Error: " + error.message;
+            }
+        });
+    </script>
+
+</body>
+</html>
